@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Calcolatore Diluizioni</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #eff6ff 0%, #ecfeff 100%);
+      min-height: 100vh;
+      padding: 24px 16px;
+    }
+    
+    .container {
+      max-width: 480px;
+      margin: 0 auto;
+    }
+    
+    .card {
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    
+    .tabs {
+      display: flex;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 12px 16px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f9fafb;
+      color: #4b5563;
+    }
+    
+    .tab:hover {
+      background: #f3f4f6;
+    }
+    
+    .tab.active {
+      background: #2563eb;
+      color: white;
+    }
+    
+    .tab-content {
+      display: none;
+      padding: 24px;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    h1 {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1f2937;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    
+    .subtitle {
+      font-size: 14px;
+      color: #6b7280;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    
+    .form-group {
+      margin-bottom: 16px;
+    }
+    
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+    
+    .presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    
+    .preset-btn {
+      padding: 6px 12px;
+      font-size: 14px;
+      font-weight: 500;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f3f4f6;
+      color: #374151;
+    }
+    
+    .preset-btn:hover {
+      background: #e5e7eb;
+    }
+    
+    .preset-btn.active {
+      background: #0891b2;
+      color: white;
+      box-shadow: 0 2px 8px rgba(8,145,178,0.3);
+    }
+    
+    .preset-btn.active-blue {
+      background: #2563eb;
+      color: white;
+      box-shadow: 0 2px 8px rgba(37,99,235,0.3);
+    }
+    
+    .ratio-presets {
+      max-height: 120px;
+      overflow-y: auto;
+      padding: 4px;
+      gap: 6px;
+    }
+    
+    .ratio-presets .preset-btn {
+      padding: 4px 10px;
+      font-size: 13px;
+    }
+    
+    input, select {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 16px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      outline: none;
+      transition: all 0.2s;
+    }
+    
+    input:focus, select:focus {
+      border-color: #2563eb;
+      box-shadow: 0 0 0 3px rgba(37,99,235,0.1);
+    }
+    
+    .ratio-input {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .ratio-input span {
+      color: #6b7280;
+      font-weight: 500;
+    }
+    
+    .ratio-input input {
+      flex: 1;
+    }
+    
+    .btn-primary {
+      width: 100%;
+      padding: 12px 16px;
+      font-size: 16px;
+      font-weight: 600;
+      color: white;
+      background: #2563eb;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+    }
+    
+    .btn-primary:hover {
+      background: #1d4ed8;
+      box-shadow: 0 6px 16px rgba(37,99,235,0.4);
+    }
+    
+    .result {
+      margin-top: 20px;
+      padding: 20px;
+      background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 100%);
+      border-radius: 12px;
+      border: 1px solid #bbf7d0;
+      display: none;
+    }
+    
+    .result.visible {
+      display: block;
+    }
+    
+    .result.error {
+      background: linear-gradient(135deg, #fef2f2 0%, #fff1f2 100%);
+      border-color: #fecaca;
+    }
+    
+    .result h2 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+      text-align: center;
+      margin-bottom: 12px;
+    }
+    
+    .result-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 0;
+      border-bottom: 1px solid #bbf7d0;
+    }
+    
+    .result.error .result-row {
+      border-bottom-color: #fecaca;
+    }
+    
+    .result-row:last-child {
+      border-bottom: none;
+    }
+    
+    .result-row span:first-child {
+      color: #4b5563;
+    }
+    
+    .result-row span:last-child {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .result-row .blue { color: #2563eb; }
+    .result-row .cyan { color: #0891b2; }
+    .result-row .dark { color: #1f2937; }
+    .result-row .green { color: #16a34a; }
+    .result-row .red { color: #dc2626; }
+    
+    .result-note {
+      margin-top: 12px;
+      font-size: 12px;
+      color: #6b7280;
+      text-align: center;
+    }
+    
+    .error-message {
+      color: #dc2626;
+      font-size: 14px;
+    }
+    
+    .product-card {
+      margin-top: 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 16px;
+      background: #f9fafb;
+    }
+    
+    .product-hint {
+      font-size: 14px;
+      color: #6b7280;
+      margin-bottom: 12px;
+    }
+    
+    .use-btn {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      margin-bottom: 8px;
+      font-size: 14px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: white;
+      text-align: left;
+    }
+    
+    .use-btn:last-child {
+      margin-bottom: 0;
+    }
+    
+    .use-btn:hover {
+      background: #f3f4f6;
+    }
+    
+    .use-btn.active {
+      background: #dbeafe;
+      border-color: #93c5fd;
+    }
+    
+    .use-btn span:first-child {
+      color: #374151;
+    }
+    
+    .use-btn span:last-child {
+      color: #2563eb;
+      font-weight: 600;
+      white-space: nowrap;
+      margin-left: 8px;
+    }
+    
+    .footer {
+      margin-top: 16px;
+      font-size: 12px;
+      color: #9ca3af;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="tabs">
+        <button class="tab active" data-tab="calculator">Calcolatore</button>
+        <button class="tab" data-tab="refill">Rabbocco</button>
+        <button class="tab" data-tab="products">Prodotti</button>
+      </div>
+      
+      <!-- Calculator Tab -->
+      <div id="calculator" class="tab-content active">
+        <h1>Calcolatore Diluizioni</h1>
+        <p class="subtitle">Rapporto 1:X (1 parte prodotto, X parti acqua)</p>
+        
+        <div class="form-group">
+          <label>Volume totale desiderato (ml)</label>
+          <div class="presets" id="volume-presets"></div>
+          <input type="number" id="volume" placeholder="oppure inserisci manualmente">
+        </div>
+        
+        <div class="form-group">
+          <label>Rapporto di diluizione (1:X)</label>
+          <div class="presets ratio-presets" id="ratio-presets"></div>
+          <div class="ratio-input">
+            <span>1 :</span>
+            <input type="number" id="ratio" placeholder="oppure inserisci manualmente">
+          </div>
+        </div>
+        
+        <button class="btn-primary" onclick="calculate()">Calcola</button>
+        
+        <div class="result" id="calc-result">
+          <h2>Risultato</h2>
+          <div class="result-row">
+            <span>Prodotto:</span>
+            <span class="blue" id="result-product">0 ml</span>
+          </div>
+          <div class="result-row">
+            <span>Acqua:</span>
+            <span class="cyan" id="result-water">0 ml</span>
+          </div>
+          <div class="result-row">
+            <span>Totale:</span>
+            <span class="dark" id="result-total">0 ml</span>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Refill Tab -->
+      <div id="refill" class="tab-content">
+        <h1>Rabbocco Flacone</h1>
+        <p class="subtitle">Calcola come rabboccare un flacone con prodotto già diluito</p>
+        
+        <div class="form-group">
+          <label>Capacità flacone (ml)</label>
+          <div class="presets" id="bottle-presets"></div>
+          <input type="number" id="bottle-size" placeholder="es. 500">
+        </div>
+        
+        <div class="form-group">
+          <label>Quantità rimasta nel flacone (ml)</label>
+          <input type="number" id="remaining" placeholder="es. 150">
+        </div>
+        
+        <div class="form-group">
+          <label>Diluizione attuale (1:X)</label>
+          <div class="ratio-input">
+            <span>1 :</span>
+            <input type="number" id="current-ratio" placeholder="es. 10">
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label>Diluizione desiderata (1:X)</label>
+          <div class="ratio-input">
+            <span>1 :</span>
+            <input type="number" id="target-ratio" placeholder="es. 20">
+          </div>
+        </div>
+        
+        <button class="btn-primary" onclick="calculateRefill()">Calcola Rabbocco</button>
+        
+        <div class="result" id="refill-result">
+          <h2>Cosa aggiungere</h2>
+          <div class="result-row">
+            <span>Prodotto concentrato:</span>
+            <span class="blue" id="refill-concentrate">0 ml</span>
+          </div>
+          <div class="result-row">
+            <span>Acqua:</span>
+            <span class="cyan" id="refill-water">0 ml</span>
+          </div>
+          <div class="result-row">
+            <span>Volume finale:</span>
+            <span class="dark" id="refill-total">0 ml</span>
+          </div>
+          <div class="result-row">
+            <span>Diluizione finale:</span>
+            <span class="green" id="refill-ratio">1:0</span>
+          </div>
+          <p class="result-note" id="refill-note"></p>
+        </div>
+      </div>
+      
+      <!-- Products Tab -->
+      <div id="products" class="tab-content">
+        <h1>Riferimento Prodotti</h1>
+        <p class="subtitle">Seleziona un prodotto e clicca sull'uso per impostare il rapporto</p>
+        
+        <div class="form-group">
+          <select id="product-select">
+            <option value="">Seleziona un prodotto...</option>
+          </select>
+        </div>
+        
+        <div class="product-card" id="product-card" style="display: none;">
+          <p class="product-hint">Clicca su un utilizzo per impostare il rapporto:</p>
+          <div id="product-uses"></div>
+        </div>
+      </div>
+    </div>
+    
+    <p class="footer">Esempio: 1L con rapporto 1:10 → 90.91ml prodotto + 909.09ml acqua</p>
+  </div>
+
+  <script>
+    // Data
+    const volumePresets = [500, 1000, 2000, 5000, 8000, 10000, 12000];
+    const ratioPresets = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 70, 80, 100, 200, 300, 400, 800, 1000, 1200];
+    const bottlePresets = [500, 750, 1000];
+    
+    const products = [
+      {
+        name: "Labocosmetica Ductile",
+        category: "APC",
+        uses: [
+          { name: "Motori, cerchi, passaruota", ratio: 3 },
+          { name: "Battute e prelavaggio", ratio: "20-30", ratioValue: 20 },
+          { name: "Tessuti e moquette", ratio: 10 },
+          { name: "Plastiche interne", ratio: 20 },
+        ]
+      },
+      {
+        name: "Labocosmetica Omnia",
+        category: "Interni",
+        uses: [
+          { name: "Sporchi difficili (pelle, plastica, tessuti)", ratio: 5 },
+          { name: "Quick Interior Detailer", ratio: 10 },
+        ]
+      },
+      {
+        name: "Labocosmetica Primus",
+        category: "Prelavaggio",
+        uses: [
+          { name: "Spray: cerchi e gomme", ratio: "3-10", ratioValue: 3 },
+          { name: "Spray: insetti e parte bassa", ratio: 20 },
+          { name: "Spray: auto molto sporca", ratio: 50 },
+          { name: "Spray: auto mediamente sporca", ratio: 80 },
+          { name: "Spray: lavaggi frequenti", ratio: 100 },
+          { name: "Foam Gun: sporco invernale/ostinato", ratio: 5 },
+          { name: "Foam Gun: sporco estivo/mantenimento", ratio: 10 },
+          { name: "Secchio: shampoo sporco ostinato", ratio: 100 },
+        ]
+      },
+      {
+        name: "Labocosmetica Purifica",
+        category: "Shampoo",
+        uses: [
+          { name: "Foam Gun: sporco intenso", ratio: "5-10", ratioValue: 5 },
+          { name: "Foam Gun: mantenimento", ratio: 10 },
+          { name: "Secchio: sporco intenso", ratio: "100-400", ratioValue: 100 },
+          { name: "Secchio: mantenimento", ratio: 400 },
+          { name: "Nebulizzatore", ratio: "100-200", ratioValue: 100 },
+        ]
+      },
+      {
+        name: "Labocosmetica Revitax",
+        category: "Shampoo",
+        uses: [
+          { name: "Auto non protette", ratio: 100 },
+          { name: "Mantenimento coating/sigillanti", ratio: 200 },
+        ]
+      },
+      {
+        name: "Labocosmetica Semper",
+        category: "Shampoo",
+        uses: [
+          { name: "Sporco ostinato", ratio: 800 },
+          { name: "Sporco medio", ratio: 1000 },
+          { name: "Sporco leggero", ratio: 1200 },
+        ]
+      }
+    ];
+
+    // State
+    let selectedVolume = '';
+    let selectedRatio = '';
+    let selectedBottle = '';
+    let selectedUse = '';
+
+    // Initialize
+    function init() {
+      renderVolumePresets();
+      renderRatioPresets();
+      renderBottlePresets();
+      renderProductSelect();
+      setupTabs();
+    }
+
+    function formatVolume(ml) {
+      return ml >= 1000 ? `${ml / 1000}L` : `${ml}ml`;
+    }
+
+    // Render functions
+    function renderVolumePresets() {
+      const container = document.getElementById('volume-presets');
+      container.innerHTML = volumePresets.map(v => 
+        `<button class="preset-btn" onclick="selectVolume(${v})">${formatVolume(v)}</button>`
+      ).join('');
+    }
+
+    function renderRatioPresets() {
+      const container = document.getElementById('ratio-presets');
+      container.innerHTML = ratioPresets.map(r => 
+        `<button class="preset-btn" onclick="selectRatio(${r})">1:${r}</button>`
+      ).join('');
+    }
+
+    function renderBottlePresets() {
+      const container = document.getElementById('bottle-presets');
+      container.innerHTML = bottlePresets.map(b => 
+        `<button class="preset-btn" onclick="selectBottle(${b})">${formatVolume(b)}</button>`
+      ).join('');
+    }
+
+    function renderProductSelect() {
+      const select = document.getElementById('product-select');
+      select.innerHTML = '<option value="">Seleziona un prodotto...</option>' +
+        products.map((p, i) => `<option value="${i}">${p.name} (${p.category})</option>`).join('');
+      select.addEventListener('change', onProductChange);
+    }
+
+    function setupTabs() {
+      document.querySelectorAll('.tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+          tab.classList.add('active');
+          document.getElementById(tab.dataset.tab).classList.add('active');
+        });
+      });
+    }
+
+    // Selection handlers
+    function selectVolume(v) {
+      selectedVolume = v;
+      document.getElementById('volume').value = v;
+      updateVolumeButtons();
+      if (selectedRatio) calculate();
+    }
+
+    function selectRatio(r) {
+      selectedRatio = r;
+      selectedUse = '';
+      document.getElementById('ratio').value = r;
+      updateRatioButtons();
+      if (selectedVolume || document.getElementById('volume').value) calculate();
+    }
+
+    function selectBottle(b) {
+      selectedBottle = b;
+      document.getElementById('bottle-size').value = b;
+      updateBottleButtons();
+    }
+
+    function updateVolumeButtons() {
+      document.querySelectorAll('#volume-presets .preset-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', volumePresets[i] == selectedVolume);
+      });
+    }
+
+    function updateRatioButtons() {
+      document.querySelectorAll('#ratio-presets .preset-btn').forEach((btn, i) => {
+        btn.classList.toggle('active-blue', ratioPresets[i] == selectedRatio && !selectedUse);
+      });
+    }
+
+    function updateBottleButtons() {
+      document.querySelectorAll('#bottle-presets .preset-btn').forEach((btn, i) => {
+        btn.classList.toggle('active', bottlePresets[i] == selectedBottle);
+      });
+    }
+
+    // Calculator
+    function calculate() {
+      const volume = parseFloat(document.getElementById('volume').value);
+      const ratio = parseFloat(document.getElementById('ratio').value);
+      const resultDiv = document.getElementById('calc-result');
+      
+      if (isNaN(volume) || isNaN(ratio) || volume <= 0 || ratio <= 0) {
+        resultDiv.classList.remove('visible');
+        return;
+      }
+      
+      const totalParts = 1 + ratio;
+      const product = volume / totalParts;
+      const water = product * ratio;
+      
+      document.getElementById('result-product').textContent = product.toFixed(2) + ' ml';
+      document.getElementById('result-water').textContent = water.toFixed(2) + ' ml';
+      document.getElementById('result-total').textContent = volume.toFixed(2) + ' ml';
+      
+      resultDiv.classList.add('visible');
+      resultDiv.classList.remove('error');
+    }
+
+    // Refill Calculator
+    function calculateRefill() {
+      const bottle = parseFloat(document.getElementById('bottle-size').value);
+      const remaining = parseFloat(document.getElementById('remaining').value);
+      const currentR = parseFloat(document.getElementById('current-ratio').value);
+      const targetR = parseFloat(document.getElementById('target-ratio').value);
+      const resultDiv = document.getElementById('refill-result');
+      
+      if (isNaN(bottle) || isNaN(remaining) || isNaN(currentR) || isNaN(targetR) ||
+          bottle <= 0 || remaining < 0 || currentR <= 0 || targetR <= 0 || remaining > bottle) {
+        resultDiv.classList.remove('visible');
+        return;
+      }
+      
+      const existingConcentrate = remaining / (1 + currentR);
+      const totalConcentrateNeeded = bottle / (1 + targetR);
+      const concentrateToAdd = totalConcentrateNeeded - existingConcentrate;
+      const volumeToAdd = bottle - remaining;
+      const waterToAdd = volumeToAdd - concentrateToAdd;
+      
+      resultDiv.classList.add('visible');
+      
+      if (concentrateToAdd < 0) {
+        resultDiv.classList.add('error');
+        resultDiv.innerHTML = `
+          <h2>Attenzione</h2>
+          <p class="error-message">La diluizione attuale è già più concentrata di quella desiderata. Non è possibile diluire ulteriormente senza svuotare parte del flacone.</p>
+        `;
+        return;
+      }
+      
+      if (waterToAdd < 0) {
+        resultDiv.classList.add('error');
+        resultDiv.innerHTML = `
+          <h2>Attenzione</h2>
+          <p class="error-message">Non c'è abbastanza spazio nel flacone per raggiungere la diluizione desiderata. Serve più prodotto concentrato di quanto lo spazio permetta.</p>
+        `;
+        return;
+      }
+      
+      resultDiv.classList.remove('error');
+      resultDiv.innerHTML = `
+        <h2>Cosa aggiungere</h2>
+        <div class="result-row">
+          <span>Prodotto concentrato:</span>
+          <span class="blue">${concentrateToAdd.toFixed(2)} ml</span>
+        </div>
+        <div class="result-row">
+          <span>Acqua:</span>
+          <span class="cyan">${waterToAdd.toFixed(2)} ml</span>
+        </div>
+        <div class="result-row">
+          <span>Volume finale:</span>
+          <span class="dark">${bottle.toFixed(2)} ml</span>
+        </div>
+        <div class="result-row">
+          <span>Diluizione finale:</span>
+          <span class="green">1:${targetR}</span>
+        </div>
+        <p class="result-note">Concentrato già presente: ${existingConcentrate.toFixed(2)} ml</p>
+      `;
+    }
+
+    // Products
+    function onProductChange(e) {
+      const index = e.target.value;
+      const card = document.getElementById('product-card');
+      const usesContainer = document.getElementById('product-uses');
+      
+      if (index === '') {
+        card.style.display = 'none';
+        return;
+      }
+      
+      const product = products[index];
+      card.style.display = 'block';
+      
+      usesContainer.innerHTML = product.uses.map(use => `
+        <button class="use-btn" onclick="selectProductUse('${use.name}', ${use.ratioValue || use.ratio})">
+          <span>${use.name}</span>
+          <span>1:${use.ratio}</span>
+        </button>
+      `).join('');
+    }
+
+    function selectProductUse(name, ratioValue) {
+      selectedUse = name;
+      selectedRatio = ratioValue;
+      document.getElementById('ratio').value = ratioValue;
+      
+      // Update use buttons
+      document.querySelectorAll('.use-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.querySelector('span').textContent === name);
+      });
+      
+      // Switch to calculator tab
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.querySelector('[data-tab="calculator"]').classList.add('active');
+      document.getElementById('calculator').classList.add('active');
+      
+      updateRatioButtons();
+      if (document.getElementById('volume').value) calculate();
+    }
+
+    // Input listeners
+    document.getElementById('volume').addEventListener('input', function() {
+      selectedVolume = this.value;
+      updateVolumeButtons();
+    });
+
+    document.getElementById('ratio').addEventListener('input', function() {
+      selectedRatio = this.value;
+      selectedUse = '';
+      updateRatioButtons();
+    });
+
+    document.getElementById('bottle-size').addEventListener('input', function() {
+      selectedBottle = this.value;
+      updateBottleButtons();
+    });
+
+    // Initialize on load
+    init();
+  </script>
+</body>
+</html>
