@@ -18,7 +18,8 @@ python -m http.server 8000
 ```
 calcolo-diluizioni/
 ├── CLAUDE.md           # This file - AI assistant guidelines
-└── diluizioni.html     # Complete application (single file, ~775 lines)
+├── README.md           # Brief project description (Italian)
+└── diluizioni.html     # Complete application (single file, ~784 lines)
 ```
 
 ### File Organization (diluizioni.html)
@@ -28,7 +29,8 @@ calcolo-diluizioni/
 | HTML Head & Meta | 1-6 | Document declaration, UTF-8, viewport |
 | CSS Styles | 7-320 | Complete inline stylesheet |
 | HTML Structure | 321-445 | Tab-based UI with three sections |
-| JavaScript | 446-773 | Application logic and data |
+| JavaScript | 447-781 | Application logic and data |
+| Closing Tags | 782-783 | `</body>` and `</html>` |
 
 ## Architecture
 
@@ -59,7 +61,7 @@ calcolo-diluizioni/
 - Tracks existing concentrate in bottle
 
 ### 3. Riferimento Prodotti (Products Tab)
-- Reference guide for 7 supported cleaning products
+- Reference guide for 8 supported cleaning products (1 Cleantle + 7 Labocosmetica)
 - Each product has multiple usage scenarios with recommended ratios
 - Clicking a use auto-sets the ratio and switches to Calculator tab
 
@@ -121,7 +123,7 @@ waterToAdd = volumeToAdd - concentrateToAdd;
 
 ### Adding a New Product
 
-Add to the `products` array (line 453-525):
+Add to the `products` array (lines 453-533):
 
 ```javascript
 {
@@ -152,10 +154,17 @@ Add to `volumePresets` array (line 449):
 const volumePresets = [500, 1000, 2000, ..., YOUR_NEW_VOLUME];
 ```
 
+### Adding a Bottle Preset
+
+Add to `bottlePresets` array (line 451):
+```javascript
+const bottlePresets = [500, 750, 1000, YOUR_NEW_BOTTLE];
+```
+
 ### Modifying Calculations
 
-- Basic dilution: `calculate()` function (lines 627-647)
-- Refill logic: `calculateRefill()` function (lines 650-710)
+- Basic dilution: `calculate()` function (lines 635-655)
+- Refill logic: `calculateRefill()` function (lines 658-718)
 
 ### Styling Changes
 
@@ -183,10 +192,40 @@ All CSS is inline in the `<style>` block (lines 7-320). Key classes:
 
 ### Presets
 ```javascript
-volumePresets = [500, 1000, 2000, 5000, 8000, 10000, 12000];  // ml
-ratioPresets = [1, 2, 3, ..., 100, 200, 300, 400, 800, 1000, 1200];
-bottlePresets = [500, 750, 1000];  // ml
+volumePresets = [500, 1000, 2000, 5000, 8000, 10000, 12000];     // ml
+ratioPresets = [1,2,3,...,10,15,20,...,100,200,300,400,800,1000,1200]; // 29 values
+bottlePresets = [500, 750, 1000];                                  // ml (refill tab)
 ```
+
+### Current Products (as of last update)
+
+1. Cleantle EcoWash (Multi-uso) - 5 uses
+2. Labocosmetica Ductile (APC) - 4 uses
+3. Labocosmetica Energo (Decontaminante Calcare) - 2 uses
+4. Labocosmetica Omnia (Interni) - 2 uses
+5. Labocosmetica Primus (Prelavaggio) - 8 uses
+6. Labocosmetica Purifica (Shampoo) - 5 uses
+7. Labocosmetica Revitax (Shampoo) - 2 uses
+8. Labocosmetica Semper (Shampoo) - 3 uses
+
+### Key Functions Reference
+
+| Function | Line | Purpose |
+|----------|------|---------|
+| `init()` | 542 | App initialization, renders all presets and sets up tabs |
+| `formatVolume(ml)` | 550 | Formats ml to "Xml" or "XL" display |
+| `renderVolumePresets()` | 555 | Renders volume preset buttons |
+| `renderRatioPresets()` | 562 | Renders ratio preset buttons |
+| `renderBottlePresets()` | 569 | Renders bottle preset buttons |
+| `renderProductSelect()` | 576 | Populates product dropdown |
+| `setupTabs()` | 583 | Wires up tab click handlers |
+| `selectVolume(v)` | 595 | Handles volume preset selection |
+| `selectRatio(r)` | 602 | Handles ratio preset selection |
+| `selectBottle(b)` | 610 | Handles bottle preset selection |
+| `calculate()` | 635 | Main dilution calculation |
+| `calculateRefill()` | 658 | Refill/top-up calculation |
+| `onProductChange(e)` | 721 | Product dropdown change handler |
+| `selectProductUse(name, ratioValue)` | 742 | Sets ratio from product use and switches to calculator |
 
 ## Testing
 
